@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <Header />
-    <router-view/>
+    <router-view />
   </div>
 </template>
 <script>
-import Header from '@/components/Header'
+import Header from '@/components/Header';
 
 export default {
   components: {
-    Header
+    Header,
   },
-}
+};
 </script>
 <style lang="scss">
 #app {

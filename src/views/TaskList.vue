@@ -2,10 +2,7 @@
   <div>
     <md-list class="task__list">
       <router-link v-for="task in tasks" :to="`/task/${task.id}`" :key="task.id">
-        <md-list-item
-            class="task__item md-error"
-            :class="`task__item--${task.status}`"
-        >
+        <md-list-item class="task__item md-error" :class="`task__item--${task.status}`">
           <span class="task__number">{{ task.id }}</span>
           <div class="task__group">
             <span class="task__name">{{ task.name }}</span>
@@ -25,9 +22,9 @@ export default {
   data() {
     return {
       tasks,
-    }
+    };
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -115,5 +112,4 @@ export default {
 .md-list-item-container {
   height: 100%;
 }
-
 </style>
