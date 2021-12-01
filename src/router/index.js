@@ -31,6 +31,7 @@ const routes = [
   },
   {
     path: '/task/:id',
+    props: true,
     component: Task,
     meta: {
       breadcrumb: [{ name: 'Главная', link: '/' }, { name: 'Список заявок', link: '/tasks' }, { name: 'Заявка' }],

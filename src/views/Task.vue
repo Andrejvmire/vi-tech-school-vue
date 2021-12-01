@@ -1,25 +1,26 @@
 <template>
   <section>
     <md-toolbar>
-      <h1 class="md-title" style="flex: 1; text-align: left">{{ getTask.name }}</h1>
-      <i :class="`task__text--${getTask.status}`">{{ status[getTask.status] }}</i>
+      <h1 class="md-title" style="flex: 1; text-align: left">{{ getTaskById(id).title }}</h1>
+      <i :class="`task__text--${getTaskById(id).className}`">{{ status[getTaskById(id).status.title] }}</i>
       <md-button class="task__btn">Редактировать</md-button>
     </md-toolbar>
     <md-content class="container task__container">
-      <strong>{{ getTask.description }}</strong>
+      <strong>{{ getTaskById(id).message }}</strong>
     </md-content>
-    <modal :task="getTask" @change-title="changeTitle" @change-description="changeDescription" />
   </section>
 </template>
+
 <script>
-import task from '../static/tasks.json';
-import Modal from '@/components/Modal';
+import { mapState, mapGetters } from 'vuex';
+
 export default {
   name: 'Task',
-  components: { Modal },
+  props: {
+    id: [String, Number],
+  },
   data() {
     return {
-      task,
       status: {
         done: 'Выполнено',
         active: 'В работе',
@@ -28,9 +29,8 @@ export default {
     };
   },
   computed: {
-    getTask() {
-      return task.find(({ id }) => id === this.$route.params.id);
-    },
+    ...mapState(['tasks']),
+    ...mapGetters(['getTaskById']),
   },
   methods: {
     changeTitle(title) {

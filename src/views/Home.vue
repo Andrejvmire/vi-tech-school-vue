@@ -53,8 +53,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   name: 'Home',
   data() {
@@ -74,7 +72,7 @@ export default {
   methods: {
     async signInMethod() {
       try {
-        const response = await axios.post('http://localhost:1780/api/registration', this.signIn);
+        const response = await this.$api.post('registration', this.signIn);
         console.log(response);
       } catch (error) {
         console.error(error);
@@ -82,7 +80,11 @@ export default {
     },
     async loginMethod() {
       try {
-        this.$store.dispatch('getToken', { email: this.email, password: this.password });
+        const response = await this.$api.post('login', {
+          email: this.email,
+          password: this.password,
+        });
+        this.$api.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.data;
       } catch (error) {
         console.error(error);
       }

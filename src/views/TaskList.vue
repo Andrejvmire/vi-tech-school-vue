@@ -1,28 +1,97 @@
 <template>
   <div>
+    <md-button @click="showCreateModal">Создать задачу</md-button>
     <md-list class="task__list">
       <router-link v-for="task in tasks" :to="`/task/${task.id}`" :key="task.id">
-        <md-list-item class="task__item md-error" :class="`task__item--${task.status}`">
+        <md-list-item class="task__item md-error" :class="`task__item--${task.className}`">
           <span class="task__number">{{ task.id }}</span>
           <div class="task__group">
-            <span class="task__name">{{ task.name }}</span>
-            <p class="task__text">{{ task.description }}</p>
+            <span class="task__name">{{ task.title }}</span>
+            <p class="task__text">{{ task.message }}</p>
           </div>
+          <md-button @click.stop.prevent="deleteTask(task.id)">Удалить</md-button>
         </md-list-item>
       </router-link>
     </md-list>
+    <md-dialog :md-active.sync="isCreateModalShow">
+      <md-card class="card">
+        <md-card-content>
+          <md-field>
+            <label>Заголовок *</label>
+            <md-input v-model="title"></md-input>
+          </md-field>
+          <md-field>
+            <label>Описание *</label>
+            <md-input v-model="message"></md-input>
+          </md-field>
+          <span v-if="error" class="error">{{ error }}</span>
+        </md-card-content>
+
+        <md-card-actions>
+          <md-button @click="isCreateModalShow = false">Отменить</md-button>
+          <md-button @click="createTask">Создать задачу</md-button>
+        </md-card-actions>
+      </md-card>
+    </md-dialog>
   </div>
 </template>
 
 <script>
-import tasks from '../static/tasks.json';
+import { mapActions, mapState } from 'vuex';
 
 export default {
   name: 'TripleLine',
   data() {
     return {
-      tasks,
+      isCreateModalShow: false,
+      title: '',
+      message: '',
+      error: '',
     };
+  },
+  mounted() {
+    this.getTasks();
+  },
+  computed: {
+    ...mapState(['tasks']),
+  },
+  methods: {
+    ...mapActions(['getTasks']),
+    showCreateModal() {
+      this.isCreateModalShow = true;
+    },
+    validateForm() {
+      let isValid = true;
+
+      if (!this.title || !this.message) {
+        this.error = 'Заполните обязательные поля';
+        isValid = false;
+      }
+
+      return isValid;
+    },
+    async createTask() {
+      if (!this.validateForm()) return;
+      try {
+        await this.$api.post('request/add', {
+          title: this.title,
+          message: this.message,
+        });
+        this.title = '';
+        this.message = '';
+        this.isCreateModalShow = false;
+      } catch (error) {
+        console.error(error);
+        this.error = 'Что-то пошло не так';
+      }
+    },
+    async deleteTask(id) {
+      try {
+        await this.$api.post(`request/delete/${id}`);
+      } catch (error) {
+        console.error(error);
+      }
+    },
   },
 };
 </script>
@@ -46,8 +115,8 @@ export default {
     display: flex;
     align-items: center;
 
-    &--overdue {
-      background-color: #db545a;
+    &--waiting {
+      background-color: #fbf981;
     }
 
     &--done {
@@ -111,5 +180,15 @@ export default {
 
 .md-list-item-container {
   height: 100%;
+}
+
+.create-task {
+  padding: 50px;
+  min-width: 500px;
+  max-width: 100%;
+}
+
+.error {
+  color: red;
 }
 </style>
