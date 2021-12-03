@@ -14,22 +14,23 @@
       </router-link>
     </md-list>
     <md-dialog :md-active.sync="isCreateModalShow">
-      <md-card class="card">
+      <md-card class="create-task">
         <md-card-content>
-          <md-field>
+          <md-field :class="getValidationClass('title')">
             <label>Заголовок *</label>
-            <md-input v-model="title"></md-input>
+            <md-input v-model="form.title"></md-input>
+            <span class="md-error">Поле обязательно для заполнения</span>
           </md-field>
-          <md-field>
+          <md-field :class="getValidationClass('message')">
             <label>Описание *</label>
-            <md-input v-model="message"></md-input>
+            <md-textarea v-model="form.message"></md-textarea>
+            <span class="md-error">Поле обязательно для заполнения</span>
           </md-field>
-          <span v-if="error" class="error">{{ error }}</span>
         </md-card-content>
 
         <md-card-actions>
           <md-button @click="isCreateModalShow = false">Отменить</md-button>
-          <md-button @click="createTask">Создать задачу</md-button>
+          <md-button @click="validateForm">Создать задачу</md-button>
         </md-card-actions>
       </md-card>
     </md-dialog>
@@ -38,16 +39,31 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
+import { validationMixin } from 'vuelidate';
+import { required } from 'vuelidate/lib/validators';
 
 export default {
   name: 'TripleLine',
+  mixins: [validationMixin],
   data() {
     return {
       isCreateModalShow: false,
-      title: '',
-      message: '',
+      form: {
+        title: '',
+        message: '',
+      },
       error: '',
     };
+  },
+  validations: {
+    form: {
+      title: {
+        required,
+      },
+      message: {
+        required,
+      },
+    },
   },
   mounted() {
     this.getTasks();
@@ -61,17 +77,21 @@ export default {
       this.isCreateModalShow = true;
     },
     validateForm() {
-      let isValid = true;
-
-      if (!this.title || !this.message) {
-        this.error = 'Заполните обязательные поля';
-        isValid = false;
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        this.createTask();
       }
+    },
+    getValidationClass(fieldName) {
+      const field = this.$v.form[fieldName];
 
-      return isValid;
+      if (field) {
+        return {
+          'md-invalid': field.$invalid && field.$dirty,
+        };
+      }
     },
     async createTask() {
-      if (!this.validateForm()) return;
       try {
         await this.$api.post('request/add', {
           title: this.title,
@@ -183,7 +203,7 @@ export default {
 }
 
 .create-task {
-  padding: 50px;
+  padding: 20px 50px;
   min-width: 500px;
   max-width: 100%;
 }
