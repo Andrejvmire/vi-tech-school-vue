@@ -5,10 +5,12 @@ import VueMaterial from 'vue-material';
 import './assets/scss/main.scss';
 import Vuex from 'vuex';
 import axios from 'axios';
+import { Vuelidate } from 'vuelidate';
 
 Vue.config.productionTip = false;
 Vue.use(VueMaterial);
 Vue.use(Vuex);
+Vue.use(Vuelidate);
 
 const api = axios.create({
   baseURL: 'http://localhost:1780/api/',
