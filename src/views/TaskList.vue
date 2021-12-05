@@ -1,6 +1,8 @@
 <template>
   <div>
-    <md-button @click="showCreateModal">Создать задачу</md-button>
+    <div class="button-wrapper">
+      <md-button @click="showCreateModal">Создать задачу</md-button>
+    </div>
     <md-list class="task__list">
       <router-link v-for="task in tasks" :to="`/task/${task.id}`" :key="task.id">
         <md-list-item class="task__item md-error" :class="`task__item--${task.className}`">
@@ -34,6 +36,7 @@
         </md-card-actions>
       </md-card>
     </md-dialog>
+    <md-snackbar :md-active.sync="showError" md-position="left" :md-duration="3000">{{ error }}</md-snackbar>
   </div>
 </template>
 
@@ -51,6 +54,7 @@ export default {
         message: '',
       },
       error: '',
+      showError: false,
     };
   },
   validations: {
@@ -82,7 +86,6 @@ export default {
     },
     getValidationClass(fieldName) {
       const field = this.$v.form[fieldName];
-
       if (field) {
         return {
           'md-invalid': field.$invalid && field.$dirty,
@@ -91,24 +94,38 @@ export default {
     },
     async createTask() {
       try {
-        await this.$api.post('request/add', {
-          title: this.title,
-          message: this.message,
+        let response = await this.$api.post('request/add', {
+          title: this.form.title,
+          message: this.form.message,
         });
-        this.title = '';
-        this.message = '';
-        this.isCreateModalShow = false;
+        if (!response.data.error) {
+          await this.getTasks();
+          this.isCreateModalShow = false;
+          this.clearForm();
+        } else {
+          this.addError(response.data.message);
+        }
       } catch (error) {
         console.error(error);
-        this.error = 'Что-то пошло не так';
+        this.addError('Что-то пошло не так');
       }
+    },
+    addError(message) {
+      this.error = message;
+      this.showError = true;
     },
     async deleteTask(id) {
       try {
         await this.$api.post(`request/delete/${id}`);
       } catch (error) {
         console.error(error);
+        this.addError('Что-то пошло не так');
       }
+    },
+    clearForm() {
+      this.form.message = '';
+      this.form.title = '';
+      this.$v.$reset();
     },
   },
 };
