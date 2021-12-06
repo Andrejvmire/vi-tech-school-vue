@@ -6,6 +6,7 @@ import './assets/scss/main.scss';
 import Vuex from 'vuex';
 import axios from 'axios';
 import { Vuelidate } from 'vuelidate';
+import cookies from 'js-cookie';
 
 Vue.config.productionTip = false;
 Vue.use(VueMaterial);
@@ -48,3 +49,15 @@ new Vue({
   store,
   render: (h) => h(App),
 }).$mount('#app');
+
+router.beforeEach((to, from, next) => {
+  if (cookies.get('token')) {
+    router.app.$api.defaults.headers.common['Authorization'] = 'Bearer ' + cookies.get('token');
+    if (to.name === 'Home') {
+      next({ name: 'TasksList' });
+    }
+  } else if (to.name !== 'Home') {
+    next({ name: 'Home' });
+  }
+  next();
+});

@@ -53,6 +53,8 @@
 </template>
 
 <script>
+import cookies from 'js-cookie';
+
 export default {
   name: 'Home',
   data() {
@@ -84,7 +86,8 @@ export default {
           email: this.email,
           password: this.password,
         });
-        this.$api.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.data;
+        cookies.set('token', response.data.data);
+        await this.$router.push({ name: 'TasksList' });
       } catch (error) {
         console.error(error);
       }
