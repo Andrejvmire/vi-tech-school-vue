@@ -117,6 +117,7 @@ export default {
     async deleteTask(id) {
       try {
         await this.$api.post(`request/delete/${id}`);
+        await this.getTasks();
       } catch (error) {
         console.error(error);
         this.addError('Что-то пошло не так');

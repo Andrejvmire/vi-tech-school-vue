@@ -15,6 +15,9 @@ Vue.use(Vuelidate);
 
 const api = axios.create({
   baseURL: 'http://localhost:1780/api/',
+  headers: {
+    Authorization: 'Bearer ' + cookies.get('token'),
+  },
 });
 
 Vue.prototype.$api = api;
@@ -58,7 +61,6 @@ router.beforeEach((to, from, next) => {
     }
   } else if (to.name !== 'Home') {
     next({ name: 'Home' });
-  } else {
-    next();
   }
+  next();
 });
