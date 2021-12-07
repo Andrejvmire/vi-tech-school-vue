@@ -69,6 +69,13 @@ import { email, required, sameAs } from 'vuelidate/lib/validators';
 
 export default {
   name: 'Home',
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      if (cookies.get('token')) {
+        vm.$router.push({ name: 'TasksList' });
+      }
+    });
+  },
   data() {
     return {
       signIn: {
@@ -90,8 +97,8 @@ export default {
       try {
         const response = await this.$api.post('registration', this.signUp);
         if (!response.data.error) {
-          this.email = this.signUp.email;
-          this.password = this.signUp.plainPassword;
+          this.signIn.email = this.signUp.email;
+          this.signIn.password = this.signUp.plainPassword;
           await this.loginMethod();
         } else {
           this.error = response.data.error;
@@ -108,6 +115,7 @@ export default {
           email: this.signIn.email,
           password: this.signIn.password,
         });
+        console.log(response);
         cookies.set('token', response.data.data);
         await this.$router.push({ name: 'TasksList' });
       } catch (error) {
