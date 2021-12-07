@@ -58,7 +58,6 @@ router.beforeEach((to, from, next) => {
     }
   } else if (to.name !== 'Home') {
     next({ name: 'Home' });
-  } else {
-    next();
   }
+  next();
 });
